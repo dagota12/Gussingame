@@ -5,13 +5,17 @@
 #include<ctime>
 #include<conio.h>
 using namespace std;
-#define Max 1
+#define Max 3
+/** group members:
+
+ */
+
 class Player{
 private:
     string name;
-    float* trials;
-    float tot_diff,perf_in_trial,perf_in_acc,guess_perf;//perf(perfonmance),acc(accuracy)
-    int tot_trial=0, max_trial;///change tot trial
+    float* trials=NULL;
+    float tot_diff=0,perf_in_trial=0,perf_in_acc=0,guess_perf=0;//perf(perfonmance),acc(accuracy)
+    int tot_trial=0, max_trial=0;///change tot trial
     int counter=0;//a conter which used as the index for the trials array
 
 
@@ -33,6 +37,22 @@ public:
     float* getTrials(){
         return trials;
     }
+//getters
+    float get_tot_diff(){
+        return tot_diff;
+    }
+    float get_perf_in_trial(){
+        return perf_in_trial;
+    }
+    float calc_perf_in_acc(){
+        return perf_in_acc;
+    }
+    float get_guess_perf(){
+        return guess_perf;
+    }
+    int get_no_of_trials(){
+        return tot_trial;
+    }
     string getName(){
         return name;
     }
@@ -50,7 +70,7 @@ public:
 //calculates the prerformance intrial in percentage
     float calc_perf_in_trial(){
 
-        ///cout<< "hhih:  "<<tot_trial<<" "<<max_trial<<endl;
+        //cout<< "hhih:  "<<tot_trial<<" "<<max_trial<<endl;
         float res = 100.0-(( float(tot_trial) / float(max_trial))*100.0);
         ///cout<< "res"<<  float(tot_trial) / float(max_trial) <<endl;
 
@@ -64,7 +84,7 @@ public:
 
         float sum = 0,tought_num=float(thought_no);
 
-        for (int i=1;i<n;i++){
+        for (int i=1;i<=n;i++){
            /// cout<< sum<<endl;
             sum += i - ((tought_num - float(max_no) )*tought_num + tought_num);
         }
@@ -78,13 +98,13 @@ public:
         guess_perf = (perf_in_trial + perf_in_acc)/2.0;
         return guess_perf;
     }
-
+//accepts a number from a user until maximum number of trial reaches and increment the trial counter
     void accept_num(){
         if(counter > max_trial){
-            cout<<"maximun trial for player reached!"<<endl;
+            cout<<"\tmaximun trial for player reached!"<<endl;
             return;
         }
-        cout<< "please enter your guess: ";
+        cout<< "\tplease enter your guess: ";
         cin>> trials[counter];
         counter++;
         tot_trial++;
@@ -95,10 +115,10 @@ public:
         string resp,opreator;
         float num=0;
         while(!good){
-            resp="";
-            opreator="";
-            num=0;
-            cout<<name<<" please write your question: ";
+            resp="";//this  is where the player response is stored as the whole string
+            opreator="";//this is where the comparison operators stored
+            num=0;//stores the extracted number
+            cout<<"  ==>"<<right<<setw(6)<<name<<" please write your question: ";
             cin>> resp;
             bool good2= false;
             for(int i=0;i<resp.length();i++){
@@ -110,7 +130,7 @@ public:
                 }else if(isdigit(resp[i])){
                     num = num*10 + (resp[i]-'0');
                 }else{
-                    cout<<"invalid input!"<<endl;
+                    cout<<"---! invalid input 1---"<<endl;
                     break;
                 }
                 if(i== resp.length()-1){
@@ -121,7 +141,7 @@ public:
                 }else good = true;
             }
         }
-        ///cout<< num<<" "<<opreator<<endl;
+
         //if the number is in the seloected range
         if(opreator==">=" &&  tought_no>=num) return true;
        else if(opreator=="<="&&  tought_no<=num) return true;
@@ -129,14 +149,15 @@ public:
         return false;
 
     }
-    void calc_all(){
+//function to calculate all valuees
+    void calc_all(int thought_no,int n,int maxx){
     	///pass parametres
-    //	calc_tot_diff();
-   // 	calc_perf_in_trial();
-   // 	calc_perf_in_acc();
-   // 	calc_guess_perf();
-    	
-    
+    	calc_tot_diff(thought_no);
+    	calc_perf_in_trial();
+    	calc_perf_in_acc(n, thought_no,maxx);
+    	calc_guess_perf();
+
+
     }
     ~Player(){
      delete []trials;
@@ -148,6 +169,7 @@ struct node{
     Player* data=NULL;
     struct node* next =NULL;
 };
+void bubbleSort(node*);//function to sort the linked list_nodes
 //linked list for storing players
 class singly_LL{
 private:
@@ -170,10 +192,34 @@ public:
         SIZE++;
         return;
     }
+//display all player/s data
     void disp(){
-    node* temp = head;
+    node* temp = head;//temp points to the head
+    cout<<"\t\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd"<<endl;
+    cout<<"\t\xcd\xcd\xcd\xcd\xcd   |RESULT|  \xcd\xcd\xcd\xcd\xcd\xcd"<<endl;
+    cout<<"\t\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd"<<endl;
+
     while(temp){
-        cout<<temp->data->getName()<<endl;
+      float* arr = temp->data->getTrials();//store the trail of each  player
+    cout<<"\n========================"<<endl;
+    cout<<temp->data->getName()<<"'s  trial: ";
+    for(int i=0;i<temp->data->get_no_of_trials();i++){//until we reach end of list//
+        cout<<left<<setw(3)<< arr[i]<<" ";
+    }
+    cout<<endl;
+    string name = temp->data->getName();
+    float tot_diff= temp->data->get_tot_diff();
+    float perf_in_trial,perf_in_acc,guess_perf;
+
+    perf_in_trial= temp->data->calc_perf_in_trial();
+    perf_in_acc= temp->data->calc_perf_in_acc();
+    guess_perf= temp->data->get_guess_perf();
+
+    cout <<"\tTD: "<< tot_diff << endl;
+    cout <<"\tPT: "<< perf_in_trial << endl;
+    cout <<"\tPA: "<< perf_in_acc << endl;
+    cout <<"\tGP: "<< guess_perf << endl;
+    cout<<"========================\n"<<endl;
         temp= temp->next;
     }
 
@@ -201,10 +247,11 @@ public:
 };
 class Game{
     int thought_number,low,high,no_of_players;
-     singly_LL* players;
+     //singly_LL* players;
      bool game_over;
 
 public:
+        singly_LL* players;
 		Game(){
 		  thought_number=NULL;
 		  no_of_players=0;
@@ -216,31 +263,53 @@ public:
     void start(){
         players= new singly_LL;
         thought_number = gen_rand(low,high);
-        cout<<"\t\tGAME "  << endl <<"\t***********************  " << endl	<<"\t===========================" << endl <<"\t Gussing Game:" << endl<<"\t===========================" << endl;
-        cout<<"please enter how many players are there: "<<endl;
+        cout<<"\n\t*******************************************************\t"<<endl;
+        cout<<"\t********************>     GAME     <*******************\t"<<endl;
+        cout<<"\t*******************************************************\n\t"<<endl;
+        cout<<"======================="<<endl;
+        cout<<"\t Gussing Game" << endl;
+        cout<<"======================="<<endl;
+        cout<<"please enter number of players: ";
 
          cin>>no_of_players;
 
         string name;
         for(int i=0;i< no_of_players;i++){
-            cout<<"please enter player_"<<i+1<<" name: "<<endl;
+            cout<<"please enter player_"<<i+1<<" name: ";
             cin>> name;
             players->insert_first(name,Max);
         }
 
     }
+//calculate all players performance//
+    void calc(){
+        node* temp = players->get_head();
+        while(temp){
+
+            temp->data->calc_all(thought_number,high,high);
+            temp = temp->next;
+
+        }
+    }
 //for each  players in the current round ask each player a question and
+
     void round(){
         system("CLS");
-        //cout<<"\nANS: "<< thought_number<<endl;
+
         cout<<"so lets move on to the rounds!!"<<endl;
         cout<<"GOOD LUCK!!"<<endl;
         node* temp = players->get_head();
+//loop which it tracks each player round
     for(int j=0;j<Max;j++){
+//this loop gives chance for all  players
         for(int i=0;i<no_of_players;i++){
             system("CLS");//clear the screen
-                    cout<<"\nANS: "<< no_of_players<<endl;
-             //accepts  player questions//
+        cout<<"\t\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd"<<endl;
+        cout<<"\t\xcd\xcd\xcd\xcd\xcd   |ROUNDS|  \xcd\xcd\xcd\xcd\xcd\xcd"<<endl;
+        cout<<"\t\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd"<<endl;
+
+            cout<<"\nANS: "<< thought_number<<endl;
+//accepts  player questions//
              bool  resp = temp->data->select_range(thought_number);
              if(resp){
                 cout<<"YES!"<<endl;
@@ -248,17 +317,24 @@ public:
                 cout<<"NO!"<<endl;
              }
              temp->data->accept_num();
-             if(temp->data->getTrials()[j]== thought_number){
-                cout<<"it's Correct! "<<endl;
+             if(temp->data->getTrials()[j]== thought_number){//for each round since the j index is the same index for the currently enterd number by the player
+                cout<<"\t=====it's Correct!======="<<endl;
+                calc();//calculate all players performance
+            cout<<"\t\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd"<<endl;
+            cout<<"\t\xcd\xcd\xcd\xcd\xcd   |RESULT|  \xcd\xcd\xcd\xcd\xcd\xcd"<<endl;
+            cout<<"\t\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd"<<endl;
+
+                players->disp();
                 game_over= true;
+                end_game();
                 return;
              }else{
-                cout<<"it's wrong! "<<endl;
+                cout<<"\t-----it's wrong!------"<<endl;
              }
             if(temp->next == NULL){//if i have reached the end of list before finishing the rounds go back to the first player
                temp=players->get_head();
                cout<<"enter any key to continue.. "<<endl;
-               getch();
+               getch();//get a single char before continue
                continue;
             }
             temp = temp->next;
@@ -266,6 +342,12 @@ public:
             getch();
             }
     }
+    calc();
+    cout<<"\t\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd"<<endl;
+    cout<<"\t\xcd\xcd\xcd\xcd\xcd   |RESULT|  \xcd\xcd\xcd\xcd\xcd\xcd"<<endl;
+    cout<<"\t\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd"<<endl;
+
+    players->disp();
     game_over = true;
     }
     // a random number generator which generates random number between a given range
@@ -279,71 +361,76 @@ public:
     	bool quit= false;
     	int resp;
     	while(quit==false){
-    		cout<<"menu"<<endl;
-    		cout<<"[1] New Game"<<endl;
-    		cout<<"[0] quit"<<endl;
+            cout<<"\t\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd"<<endl;
+    		cout<<"\t\xcd\xcd\xcd\xcd\xcd\xcd\xcd   MENU   \xcd\xcd\xcd\xcd\xcd\xcd"<<endl;
+            cout<<"\t\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd"<<endl;
+    		cout<<"\n\n\t[1] New Game"<<endl;
+    		cout<<"\t[0] quit\n"<<endl;
+
+    		cout<<"enter your choice: ";
     		cin>>resp;
     		switch(resp){
     			case 1:
 
-    				start();//start rhe game 
+    				start();//start rhe game
     			  round();//start rounds
     			  break;
     			case 0:
     				quit= true;
-    				break;		
+    				break;
     		}
     		delete players;
-    		
-    		
-    	
+
+
+
     	}
     }
 //delete all players
+    void  end_game(){
+    bubbleSort(players->get_head());
+
+
+    }
     ~Game(){
 		  delete players;
 		}
 
 
 };
+void bubbleSort(node* head) {
+    node* current = head;
+    node* nextNode = NULL;
+    Player* temp;
+
+    if (head == NULL) {
+        return;
+    }
+
+    do {
+        nextNode = current->next;
+        while (nextNode != NULL) {
+
+            if (current->data->get_guess_perf() > nextNode->data->get_guess_perf()) {
+                temp = current->data;
+                current->data = nextNode->data;
+                nextNode->data = temp;
+            }
+            nextNode = nextNode->next;
+        }
+        current = current->next;
+    } while (current != NULL);
+}
+
+///main driver
 int main()
 {
-//    Player* players= new Player[5];
-//    float  tg= 24;
-//    Player a("bob", Max);
-//        a.select_range(30);
-//
-//    float* arr = a.getTrials();
-//    for(int i=0;i<Max;i++){
-//        cout<< arr[i]<<" ";
-//    }
-//    cout<<endl;
-//    string name = a.getName();
-//    float td= a.calc_tot_diff(tg),pt,pa,gp;
-//
-//    pt= a.calc_perf_in_trial();
-//    pa = a.calc_perf_in_acc(100,tg,100);
-//    gp= a.calc_guess_perf();
-//    cout <<"TD: "<< td << endl;
-//    cout <<"PT: "<< pt << endl;
-//    cout <<"PA: "<< pa << endl;
-
-
-
-//    singly_LL* players = new singly_LL;
-//    players->insert_first("bob",Max);
-//    players->insert_first("abc",Max);
-//    players->insert_first("asd",Max);
-//    players->disp();
-
     Game* game = new Game;
 
+    //game->game_loop();
     game->start();
     game->round();
+
+    game->players->disp();
     delete game;
-//    cout <<"GP: "<< gp << endl;
-//    return 0;
-
-
 
 }
