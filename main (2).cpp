@@ -5,13 +5,13 @@
 #include<ctime>
 #include<conio.h>
 using namespace std;
-#define Max 5
+#define Max 1
 class Player{
 private:
     string name;
     float* trials;
     float tot_diff,perf_in_trial,perf_in_acc,guess_perf;//perf(perfonmance),acc(accuracy)
-    int tot_trial = 4, max_trial;///change tot trial
+    int tot_trial=0, max_trial;///change tot trial
     int counter=0;//a conter which used as the index for the trials array
 
 
@@ -87,6 +87,7 @@ public:
         cout<< "please enter your guess: ";
         cin>> trials[counter];
         counter++;
+        tot_trial++;
     }
 //accepts the question from user and answers accordingly
     bool select_range(int tought_no){
@@ -128,11 +129,21 @@ public:
         return false;
 
     }
+    void calc_all(){
+    	///pass parametres
+    //	calc_tot_diff();
+   // 	calc_perf_in_trial();
+   // 	calc_perf_in_acc();
+   // 	calc_guess_perf();
+    	
+    
+    }
     ~Player(){
      delete []trials;
     }
 
 };
+//used to create a single node for the players list
 struct node{
     Player* data=NULL;
     struct node* next =NULL;
@@ -141,19 +152,21 @@ struct node{
 class singly_LL{
 private:
     node* head = NULL;
+    node* tail = NULL;
     int SIZE=0;
 public:
 //insert player and assign name and maximum number of tries
     void insert_first(string name,int max_trial){
         node* temp = new node;//create a new node
         temp->data = new Player(name, max_trial);//assign the data by calling the constructor and assign their names and max_no_trial
-        if(head==NULL){
+        if(head==NULL){//if there is no elements
             head = temp;
-            SIZE++;//increment size of the LL
+            tail = temp;
+            SIZE++;
             return;
         }
-        temp->next = head;
-        head = temp;
+        temp->next = head;//make the new node next point to head
+        head = temp;//and set the head pointer to point to the new node
         SIZE++;
         return;
     }
@@ -172,9 +185,10 @@ public:
         return SIZE;
    }
    void rem_first(){
-    node* temp= head;
-    head= head->next;
-    delete temp;
+    node* temp= head;//make the temporary variable point to the head
+    head= head->next;//shift the head pointer to the next node
+    delete temp->data;//delete its data inthis case the call player destructor
+    delete temp;//delete the node
    }
 //destructor to free the occopied space after game ends
  ~singly_LL(){
@@ -187,15 +201,22 @@ public:
 };
 class Game{
     int thought_number,low,high,no_of_players;
-     singly_LL* players = NULL;
+     singly_LL* players;
+     bool game_over;
 
 public:
-
+		Game(){
+		  thought_number=NULL;
+		  no_of_players=0;
+		  players = NULL;
+		  low=0;
+		  high=100;
+		  bool game_over= false;
+		}
     void start(){
         players= new singly_LL;
-        thought_number = gen_rand(0,100);
-        cout<<"\n\t \xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd"<<endl;
-        cout<<"\t \xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd WELCOME! \xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\n"<<endl;
+        thought_number = gen_rand(low,high);
+        cout<<"\t\tGAME "  << endl <<"\t***********************  " << endl	<<"\t===========================" << endl <<"\t Gussing Game:" << endl<<"\t===========================" << endl;
         cout<<"please enter how many players are there: "<<endl;
 
          cin>>no_of_players;
@@ -218,7 +239,7 @@ public:
     for(int j=0;j<Max;j++){
         for(int i=0;i<no_of_players;i++){
             system("CLS");//clear the screen
-                    //cout<<"\nANS: "<< thought_number<<endl;
+                    cout<<"\nANS: "<< no_of_players<<endl;
              //accepts  player questions//
              bool  resp = temp->data->select_range(thought_number);
              if(resp){
@@ -229,6 +250,7 @@ public:
              temp->data->accept_num();
              if(temp->data->getTrials()[j]== thought_number){
                 cout<<"it's Correct! "<<endl;
+                game_over= true;
                 return;
              }else{
                 cout<<"it's wrong! "<<endl;
@@ -244,6 +266,7 @@ public:
             getch();
             }
     }
+    game_over = true;
     }
     // a random number generator which generates random number between a given range
     int gen_rand(int minn,int maxx){
@@ -251,6 +274,35 @@ public:
         return minn+(rand()%maxx);
 
     }
+//game loops until the player wants to quit
+    void game_loop(){
+    	bool quit= false;
+    	int resp;
+    	while(quit==false){
+    		cout<<"menu"<<endl;
+    		cout<<"[1] New Game"<<endl;
+    		cout<<"[0] quit"<<endl;
+    		cin>>resp;
+    		switch(resp){
+    			case 1:
+
+    				start();//start rhe game 
+    			  round();//start rounds
+    			  break;
+    			case 0:
+    				quit= true;
+    				break;		
+    		}
+    		delete players;
+    		
+    		
+    	
+    	}
+    }
+//delete all players
+    ~Game(){
+		  delete players;
+		}
 
 
 };
@@ -288,6 +340,7 @@ int main()
 
     game->start();
     game->round();
+    delete game;
 //    cout <<"GP: "<< gp << endl;
 //    return 0;
 
