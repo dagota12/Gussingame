@@ -1,5 +1,9 @@
 #include <iostream>
 #include<cmath>
+#include<iomanip>
+#include<cstdlib>
+#include<ctime>
+#include<conio.h>
 using namespace std;
 #define Max 5
 class Player{
@@ -19,11 +23,11 @@ public:
         counter=0;
         this->name= name;
         trials = new float[no_tries];
-        trials[0]=11;
-        trials[1]=20;
-        trials[2]=23;
-        trials[3]=25;
-        trials[4]=26;
+//        trials[0]=11;
+//        trials[1]=20;
+//        trials[2]=23;
+//        trials[3]=25;
+//        trials[4]=26;
 
     }
     float* getTrials(){
@@ -116,38 +120,177 @@ public:
                 }else good = true;
             }
         }
-        cout<< num<<" "<<opreator<<endl;
+        ///cout<< num<<" "<<opreator<<endl;
+        //if the number is in the seloected range
         if(opreator==">=" &&  tought_no>=num) return true;
-       else if(opreator=="<="&&  tought_no<=num) return false;
-        return num;
+       else if(opreator=="<="&&  tought_no<=num) return true;
+       //but if the number was found higher or lower return false
+        return false;
 
+    }
+    ~Player(){
+     delete []trials;
     }
 
 };
+struct node{
+    Player* data=NULL;
+    struct node* next =NULL;
+};
+//linked list for storing players
+class singly_LL{
+private:
+    node* head = NULL;
+    int SIZE=0;
+public:
+//insert player and assign name and maximum number of tries
+    void insert_first(string name,int max_trial){
+        node* temp = new node;//create a new node
+        temp->data = new Player(name, max_trial);//assign the data by calling the constructor and assign their names and max_no_trial
+        if(head==NULL){
+            head = temp;
+            SIZE++;//increment size of the LL
+            return;
+        }
+        temp->next = head;
+        head = temp;
+        SIZE++;
+        return;
+    }
+    void disp(){
+    node* temp = head;
+    while(temp){
+        cout<<temp->data->getName()<<endl;
+        temp= temp->next;
+    }
 
+  }
+  node* get_head(){
+    return head;
+    }
+    int get_size(){
+        return SIZE;
+   }
+   void rem_first(){
+    node* temp= head;
+    head= head->next;
+    delete temp;
+   }
+//destructor to free the occopied space after game ends
+ ~singly_LL(){
+  while(head){
+   rem_first();
+  }
+ }
+
+
+};
 class Game{
+    int thought_number,low,high,no_of_players;
+     singly_LL* players = NULL;
+
+public:
+
+    void start(){
+        players= new singly_LL;
+        thought_number = gen_rand(0,100);
+        cout<<"\n\t \xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd"<<endl;
+        cout<<"\t \xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd WELCOME! \xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\n"<<endl;
+        cout<<"please enter how many players are there: "<<endl;
+
+         cin>>no_of_players;
+
+        string name;
+        for(int i=0;i< no_of_players;i++){
+            cout<<"please enter player_"<<i+1<<" name: "<<endl;
+            cin>> name;
+            players->insert_first(name,Max);
+        }
+
+    }
+//for each  players in the current round ask each player a question and
+    void round(){
+        system("CLS");
+        //cout<<"\nANS: "<< thought_number<<endl;
+        cout<<"so lets move on to the rounds!!"<<endl;
+        cout<<"GOOD LUCK!!"<<endl;
+        node* temp = players->get_head();
+    for(int j=0;j<Max;j++){
+        for(int i=0;i<no_of_players;i++){
+            system("CLS");//clear the screen
+                    //cout<<"\nANS: "<< thought_number<<endl;
+             //accepts  player questions//
+             bool  resp = temp->data->select_range(thought_number);
+             if(resp){
+                cout<<"YES!"<<endl;
+             }else{
+                cout<<"NO!"<<endl;
+             }
+             temp->data->accept_num();
+             if(temp->data->getTrials()[j]== thought_number){
+                cout<<"it's Correct! "<<endl;
+                return;
+             }else{
+                cout<<"it's wrong! "<<endl;
+             }
+            if(temp->next == NULL){//if i have reached the end of list before finishing the rounds go back to the first player
+               temp=players->get_head();
+               cout<<"enter any key to continue.. "<<endl;
+               getch();
+               continue;
+            }
+            temp = temp->next;
+            cout<<"enter any key to continue.. "<<endl;
+            getch();
+            }
+    }
+    }
+    // a random number generator which generates random number between a given range
+    int gen_rand(int minn,int maxx){
+        srand(time(0));
+        return minn+(rand()%maxx);
+
+    }
+
 
 };
 int main()
 {
-    float  tg= 24;
-    Player a("bob", Max);
-        a.accept_range(30);
+//    Player* players= new Player[5];
+//    float  tg= 24;
+//    Player a("bob", Max);
+//        a.select_range(30);
+//
+//    float* arr = a.getTrials();
+//    for(int i=0;i<Max;i++){
+//        cout<< arr[i]<<" ";
+//    }
+//    cout<<endl;
+//    string name = a.getName();
+//    float td= a.calc_tot_diff(tg),pt,pa,gp;
+//
+//    pt= a.calc_perf_in_trial();
+//    pa = a.calc_perf_in_acc(100,tg,100);
+//    gp= a.calc_guess_perf();
+//    cout <<"TD: "<< td << endl;
+//    cout <<"PT: "<< pt << endl;
+//    cout <<"PA: "<< pa << endl;
 
-    float* arr = a.getTrials();
-    for(int i=0;i<Max;i++){
-        cout<< arr[i]<<" ";
-    }
-    cout<<endl;
-    string name = a.getName();
-    float td= a.calc_tot_diff(tg),pt,pa,gp;
 
-    pt= a.calc_perf_in_trial();
-    pa = a.calc_perf_in_acc(100,tg,100);
-    gp= a.calc_guess_perf();
-    cout <<"TD: "<< td << endl;
-    cout <<"PT: "<< pt << endl;
-    cout <<"PA: "<< pa << endl;
-    cout <<"GP: "<< gp << endl;
-    return 0;
+
+//    singly_LL* players = new singly_LL;
+//    players->insert_first("bob",Max);
+//    players->insert_first("abc",Max);
+//    players->insert_first("asd",Max);
+//    players->disp();
+
+    Game* game = new Game;
+
+    game->start();
+    game->round();
+//    cout <<"GP: "<< gp << endl;
+//    return 0;
+
+
+
 }
