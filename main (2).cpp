@@ -9,18 +9,7 @@ using namespace std;
 /** group members:
 
  */
-/*
-1
-2
-sera
-martah
-<=50 50
-<=50 25
-<=50 12
 
-<=50 50
-<=50 9
-*/
 class Player{
 private:
     string name;
@@ -84,7 +73,7 @@ public:
         ///cout<< "res"<<  float(tot_trial) / float(max_trial) <<endl;
 
         perf_in_trial=res;
-        return 100;//res;
+        return res;
 
     }
 //calculates the performance accuracy in percentage //and returns true if the thought number is
@@ -95,21 +84,26 @@ public:
 
         for (int i=1;i<=n;i++){
            /// cout<< sum<<endl;
-            sum += i - ((tought_num - float(max_no) )*tought_num + tought_num);
+            //sum += i - ((tought_num - float(max_no) )*tought_num + tought_num);
+            sum += i;
         }
+        sum-= ((tought_num - float(max_no) )*tought_num + tought_num);
 
     //proportion = 1 - (double)totalDiff / (n * abs(n - thoughtNum));
     //accuracy = proportion * 100;
-       // perf_in_acc =1 - (double)tot_diff / (max_no * abs(max_no - thought_no));
-       // perf_in_acc*=100;
-        perf_in_acc =100 - (tot_diff/sum)*100.0;
+
+    perf_in_acc =1 - (double)tot_diff / (max_no * abs(max_no - thought_no));
+    perf_in_acc*=100;
+    ///perf_in_acc =100 - ((tot_diff/sum)*100.0);
         ///cout<< sum<<endl;
         return perf_in_acc;
 
     }
 //calculates guess performance
     float calc_guess_perf(){
-        guess_perf =  perf_in_acc ;//2.0;
+        //guess_perf = (perf_in_trial  + perf_in_acc)/2.0;
+        //guess_perf = (95  + perf_in_acc)/2.0;
+        guess_perf = perf_in_acc;
         return guess_perf;
     }
 //accepts a number from a user until maximum number of trial reaches and increment the trial counter
@@ -151,6 +145,7 @@ public:
                     cout<<"\n\t---! invalid input 1---"<<endl;
                     break;
                 }
+                
                 if(i== resp.length()-1){
                     good2 =  true;
                 }
@@ -214,6 +209,8 @@ public:
     void disp(){
     node* temp = head;//temp points to the head
     system("CLS");
+    clrscr();
+    
     cout<<"\n\t\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd"<<endl;
     cout<<"\t\xcd\xcd\xcd\xcd\xcd  |RESULT|  \xcd\xcd\xcd\xcd\xcd\xcd"<<endl;
     cout<<"\t\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd"<<endl;
@@ -242,6 +239,8 @@ public:
     cout<<"========================\n"<<endl;
         temp= temp->next;
     }
+    cout<<"enter any key to continue...";
+    getch();
 
   }
   node* get_head(){
@@ -282,6 +281,8 @@ public:
 		}
     void start(){
         system("CLS");
+        clrscr();
+        
         players= new singly_LL;
         thought_number = gen_rand(low,high);
         cout<<"\n\t*******************************************************\t"<<endl;
@@ -316,18 +317,19 @@ public:
 
     void round(){
     system("CLS");
+    clrscr();///clear screen on mobile phones
 
         cout<<"so lets move on to the rounds!!"<<endl;
         cout<<"GOOD LUCK!!"<<endl;
         node* temp = players->get_head();
 //loop which it tracks each player round
-    for(int i=0;i<no_of_players;i++){
+    for(int j=0;j<Max;j++){
 //this loop gives chance for all  players
         inc_tot_trial();//just increase all players total trial at each round first round
-        for(int j=0;j<Max;j++){
+        for(int i=0;i<no_of_players;i++){
 
         system("CLS");//clear the screen
-
+				clrscr();
         cout<<"\t\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd"<<endl;
         cout<<"\t\xcd\xcd\xcd\xcd\xcd  |ROUNDS|  \xcd\xcd\xcd\xcd\xcd\xcd"<<endl;
         cout<<"\t\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd"<<endl;
@@ -344,33 +346,29 @@ public:
              if(temp->data->getTrials()[j]== thought_number){//for each round since the j index is the same index for the currently enterd number by the player
                 cout<<"\t=====it's Correct!======="<<endl;
                 calc();//calculate all players performance
-								break;
-                //players->disp();
-               // game_over= true;
-               // end_game();
-               // return;
+
+                players->disp();
+                game_over= true;
+                end_game();
+                return;
              }else{
                 cout<<"\t-----it's wrong!------"<<endl;
              }
-           
-            
+            if(temp->next == NULL){//if i have reached the end of list before finishing the rounds go back to the first player
+               temp=players->get_head();
+               cout<<"enter any key to continue.. "<<endl;
+               getch();//get a single char before continue
+               continue;
+            }
+            temp = temp->next;
             cout<<"enter any key to continue.. "<<endl;
             getch();
-            }
-            
-            if(temp->next) temp = temp->next;
-            if(temp->next == NULL){//if i have reached the end of list before finishing the rounds go back to the first player
-               //temp=players->get_head();
-               cout<<"enter any key to continue.. "<<endl;
-               cout <<"game ended"<<endl;
-               getch();//get a single char before continue
-              // continue;
             }
 
     }
     calc();
 
-    //players->disp();
+    players->disp();
     game_over = true;
     end_game();
 
@@ -394,8 +392,11 @@ public:
     	bool quit= false;
     	int resp;
     	while(quit==false){
+    	      if(players) 	delete players;//if there were players in the previous round deletw them
+           
             system("CLS");
-
+						clrscr();
+						
             cout<<"\t\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd"<<endl;
     		cout<<"\t\xcd\xcd\xcd\xcd\xcd\xcd\xcd   MENU   \xcd\xcd\xcd\xcd\xcd\xcd"<<endl;
             cout<<"\t\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd\xcd"<<endl;
@@ -406,7 +407,7 @@ public:
     		cin>>resp;
     		switch(resp){
     			case 1:
-                    start();//start rhe game
+                    start();//start the game
                     round();//start rounds
                     break;
     			case 0:
@@ -430,9 +431,7 @@ public:
             cout<<"\nThe Answer was: "<<thought_number<<endl;
             cout<<"======================="<<endl;
             bubbleSort(players->get_head());
-            bubbleSort(players->get_head());
-            bubbleSort(players->get_head());
-            bubbleSort(players->get_head());
+  
             node* temp = players->get_head();
             string word = "";
             int i = 0;
@@ -451,6 +450,7 @@ public:
             cout<<"======================="<<endl;
             cout<<"press any key to continue..."<<endl;
             getch();
+
 
         }
     }
@@ -490,5 +490,9 @@ int main()
     Game* game = new Game;
 
     game->game_loop();
+//    game->start();
+//    game->round();
+
     delete game;
+
 }
